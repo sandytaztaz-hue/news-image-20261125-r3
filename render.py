@@ -189,7 +189,7 @@ SECONDS = [
          headline="Asia's AI stocks plunge again",
          deck="Seoul's Kospi sank about 6% and Tokyo's Nikkei about 3.8%; "
               "SoftBank fell 15%.",
-         source="CNBC \u00b7 Al Jazeera \u00b7 Korea Herald", chip="CONFIRMED"),
+         source="CNBC \u00b7 Al Jazeera", chip="CONFIRMED"),
     dict(num=5, scene="port", kicker="HODEIDAH, YEMEN \u00b7 MIDDLE EAST",
          headline="Saudi-led strikes hit Hodeidah port",
          deck="Raids early Wednesday; the Houthis threaten Jeddah and all "
@@ -199,7 +199,7 @@ SECONDS = [
          headline="Solomons treaty puts Australia first",
          deck="A$740m and no foreign bases; Honiara told China it will not "
               "renew their 2022 pact.",
-         source="ABC \u00b7 Reuters \u00b7 BBC \u00b7 Guardian", chip="CONFIRMED"),
+         source="ABC \u00b7 Reuters \u00b7 BBC", chip="CONFIRMED"),
     dict(num=7, scene="tariffs", kicker="WASHINGTON, USA \u00b7 NORTH AMERICA",
          headline="US readies Section 301 tariffs on 16 trading partners",
          deck="Levies up to 20% on China, 15% or less on the EU, Japan, "
@@ -408,8 +408,11 @@ def scene_rocket(draw, box):
         draw.line([(tx, gy), (tx + 16, gy + 6)], fill=(90, 95, 105), width=2)
     # rocket body
     rx = x0 + w * 0.52
-    draw.polygon([(rx, y0 + 12), (rx + 13, y0 + 30), (rx + 13, y1 - 34),
-                  (rx, y1 - 34)], fill=(176, 30, 36))
+    # rocket body: nose cone is a triangle centred on the body axis
+    # (apex over the body centre, base spanning the full body width),
+    # so the nose and the body read as one aligned shape.
+    draw.polygon([(rx + 32.5, y0 + 12), (rx + 13, y0 + 30),
+                  (rx + 52, y0 + 30)], fill=(176, 30, 36))
     draw.rectangle([rx + 13, y0 + 30, rx + 39, y1 - 34], fill=(240, 240, 240))
     draw.rectangle([rx + 39, y0 + 30, rx + 52, y1 - 34], fill=(210, 210, 210))
     draw.polygon([(rx + 13, y1 - 34), (rx + 26, y1 - 18), (rx + 39, y1 - 34)],
@@ -419,8 +422,8 @@ def scene_rocket(draw, box):
     # big "24" on the rocket body
     f = F(SANS_B, 26)
     draw.text((rx + 17, y0 + 52), "24", font=f, fill=NAVY)
-    # booster
-    draw.rectangle([rx - 8, y1 - 62, rx + 2, y1 - 34], fill=(200, 200, 200))
+    # booster, flush against the body (the old red side strip is gone)
+    draw.rectangle([rx + 1, y1 - 62, rx + 13, y1 - 34], fill=(200, 200, 200))
 
 
 def scene_memorial(draw, box):
@@ -536,8 +539,14 @@ def scene_tariffs(draw, box):
         draw.text((bx + bw / 2 - draw.textlength(lab, font=f) / 2, y1 - 14),
                   lab, font=f, fill=INK)
     draw.rectangle([x0 + 8, y1 - 16, x1 - 8, y1 - 13], fill=(180, 180, 180))
-    label_panel(draw, (x0 + x1) // 2, y0 + 13, "UP TO 20% \u00b7 16 PARTNERS",
-                w - 24, 15, (255, 255, 255), RED)
+    # Data label pinned clear of the red number badge (top-left, 17px):
+    # its left edge starts 2px right of the badge instead of centring it,
+    # so the "U" of "UP TO 20%" is never clipped by the badge.
+    lab = "UP TO 20% \u00b7 16 PARTNERS"
+    lf = fit_size(draw, lab, SANS_B, 15, 6.0, w - 42)
+    ltw = draw.textlength(lab, font=lf)
+    label_panel(draw, x0 + 20 + 10 + ltw / 2, y0 + 13, lab,
+                w - 42, 15, (255, 255, 255), RED)
 
 
 def scene_tower(draw, box):
